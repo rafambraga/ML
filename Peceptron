@@ -1,0 +1,259 @@
+#include <iostream>
+#include <string>
+#include <stdlib.h>
+#include <time.h>
+using namespace std;
+
+struct example
+{ int at0;
+  int at1;
+  int at2;
+  int at3;
+  int at4;
+  int at5;
+  int at6;
+
+  example()
+  { at0 = 1;
+    at1 = rand() % 2;
+    at2 = rand() % 2;
+    at3 = rand() % 2;
+    at4 = rand() % 2;
+    at5 = rand() % 2;
+    at6 = rand() % 2; }
+    
+};
+
+struct testexample
+{ int at0;
+  int at1;
+  int at2;
+  int at3;
+  int at4;
+  int at5;
+  int at6;
+  int cla;
+
+  
+  testexample()
+  { }
+
+  testexample(int a1, int a2, int a3, int a4, int a5, int a6, int c)
+  { at0 = 1;
+    at1 = a1;
+    at2 = a2;
+    at3 = a3;
+    at4 = a4;
+    at5 = a5;
+    at6 = a6;
+    cla = c; }
+
+};
+
+void train_c(example A[], int c[], int size, int k)
+{ int acc = 0;
+  for(int i = 0; i < size; i += 1)
+  { if(A[i].at1 == 1)
+    acc += 1;
+    if(A[i].at2 == 1)
+    acc += 1;
+    if(A[i].at3 == 1)
+    acc += 1;
+    if(A[i].at4 == 1)
+    acc += 1;
+    if(A[i].at5 == 1)
+    acc += 1;
+    if(A[i].at6 == 1)
+    acc += 1;
+
+    if(k == 1)
+    { if(acc >= 5)
+      c[i] = 1;
+      else
+      c[i] = 0; }
+
+    if(k == 2)
+    { if(acc == 3 || acc == 4)
+      c[i] = 1;
+      else
+      c[i] = 0; }
+
+    if(k == 3)
+    { if(acc == 2)
+      c[i] = 1;
+      else
+      c[i] = 0; }
+
+    if(k == 4)
+    { if(acc == 1)
+      c[i] = 1;
+      else
+      c[i] = 0; }
+
+    acc = 0; }
+}
+
+void perceptron(example A[], int c[], float w[], int size, float eta, int id, int atsize)
+{ float f;
+  int h;
+  int correct = 0;
+  int epoch = 0;
+
+while(correct != size)
+{ correct = 0;
+  for(int i = 0; i < size; i += 1)
+  { f = (w[0] * (float)A[i].at0) + (w[1] * (float)A[i].at1) + (w[2] * (float)A[i].at2) + (w[3] * (float)A[i].at3) + (w[4] * (float)A[i].at4) 
+      + (w[5] * (float)A[i].at5) + (w[6] * (float)A[i].at6);
+                
+    if(f > 0)
+    h = 1;
+    else
+    h = 0;
+      
+    if(h == c[i])
+    { correct += 1; } 
+    else
+    { w[0] = w[0] + (eta * (float)(c[i] - h) * (float)A[i].at0);
+      w[1] = w[1] + (eta * (float)(c[i] - h) * (float)A[i].at1);
+      w[2] = w[2] + (eta * (float)(c[i] - h) * (float)A[i].at2);
+      w[3] = w[3] + (eta * (float)(c[i] - h) * (float)A[i].at3);
+      w[4] = w[4] + (eta * (float)(c[i] - h) * (float)A[i].at4);
+      w[5] = w[5] + (eta * (float)(c[i] - h) * (float)A[i].at5);
+      w[6] = w[6] + (eta * (float)(c[i] - h) * (float)A[i].at6); } }     
+epoch += 1;
+
+  if(epoch > 100)
+  { cout << "\nEpoch limit of 100 was reached, training set is not linearly separable";
+    break; }
+}
+cout << "\n";
+cout << "The updated weights for classifier number " << id << " are: ";
+for(int j = 0; j < atsize; j += 1)
+{ cout << w[j] << " "; }
+cout << "\nIt took " << epoch-1 << " epochs\n";
+}
+
+void test(float w1[], float w2[], float w3[], float w4[])
+{ float f1,f2,f3,f4;
+  int h;
+  int error = 0;
+  testexample t0 = testexample(1,1,1,0,1,1,1);
+  testexample t1 = testexample(1,1,1,0,0,0,2);
+  testexample t2 = testexample(1,0,1,0,1,0,2);
+  testexample t3 = testexample(1,1,0,0,0,0,3);
+  testexample t4 = testexample(0,1,0,0,1,0,3);
+  testexample t5 = testexample(1,0,0,0,0,0,4);
+  
+  testexample testset[6];
+  testset[0] = t0; 
+  testset[1] = t1;
+  testset[2] = t2;
+  testset[3] = t3;
+  testset[4] = t4;
+  testset[5] = t5;
+
+  cout << "\n";
+  for(int j = 0; j < 6; j += 1)
+  { cout << "test ex" << j+1;
+    if(j < 9)
+      cout << "  ";
+    else
+      cout << " ";
+    cout /* << testset[j].at0 << " " */ << testset[j].at1 << " " << testset[j].at2 << " " << testset[j].at3 << " " << testset[j].at4 << " " << testset[j].at5 << " "
+         << testset[j].at6 << " " << "\n"; }
+
+  for(int i = 0; i < 6; i += 1)
+  { f1 = (w1[0] * (float)testset[i].at0) + (w1[1] * (float)testset[i].at1) + (w1[2] * (float)testset[i].at2) + (w1[3] * (float)testset[i].at3) + (w1[4] * (float)testset[i].at4) 
+         + (w1[5] * (float)testset[i].at5) + (w1[6] * (float)testset[i].at6);
+    f2 = (w2[0] * (float)testset[i].at0) + (w2[1] * (float)testset[i].at1) + (w2[2] * (float)testset[i].at2) + (w2[3] * (float)testset[i].at3) + (w2[4] * (float)testset[i].at4) 
+         + (w2[5] * (float)testset[i].at5) + (w2[6] * (float)testset[i].at6);
+    f3 = (w3[0] * (float)testset[i].at0) + (w3[1] * (float)testset[i].at1) + (w3[2] * (float)testset[i].at2) + (w3[3] * (float)testset[i].at3) + (w3[4] * (float)testset[i].at4) 
+         + (w3[5] * (float)testset[i].at5) + (w3[6] * (float)testset[i].at6);
+    f4 = (w4[0] * (float)testset[i].at0) + (w4[1] * (float)testset[i].at1) + (w4[2] * (float)testset[i].at2) + (w4[3] * (float)testset[i].at3) + (w4[4] * (float)testset[i].at4) 
+         + (w4[5] * (float)testset[i].at5) + (w4[6] * (float)testset[i].at6);
+    if(f1 > f2 && f1 > f3 && f1 > f4)
+    { h = 1; }
+    else if(f2 > f1 && f2 > f3 && f2 > f4)
+    { h = 2; }
+    else if(f3 > f1 && f3 > f2 && f3 > f4)
+    { h = 3; }
+    else
+    { h = 4; }
+    if(h != testset[i].cla)
+    { error += 1; }
+  }
+cout << "\nThere were " << error << " errors on the testing set." << "\nThe error rate is " << (float)error/6 << endl;
+
+}
+
+
+int main()
+{ const int size = 10;
+  const int atsize = 7;
+  srand(time(0));
+  example trset[size];
+  for(int i = 0; i < size; i += 1)
+  { cout << "ex" << i+1;
+    if(i < 9)
+      cout << "  ";
+    else
+      cout << " "; 
+    cout /* << trset[i].at0 << " " */ << trset[i].at1 << " " << trset[i].at2 << " " << trset[i].at3 << " " << trset[i].at4 << " " << trset[i].at5 << " " 
+         << trset[i].at6 << " " << "\n"; }
+
+  int c1[size];
+  int c2[size];
+  int c3[size];
+  int c4[size];
+
+  train_c(trset,c1,size,1);
+  train_c(trset,c2,size,2);
+  train_c(trset,c3,size,3);
+  train_c(trset,c4,size,4);
+
+  cout << "\n";
+  for(int j = 0; j < size; j += 1)
+  { cout << c1[j] << " " << c2[j] << " " << c3[j] << " " << c4[j] << " " << "\n"; }
+
+float w1[atsize];
+float w2[atsize];
+float w3[atsize];
+float w4[atsize];
+
+for(int k = 0; k < atsize; k += 1)
+{ w1[k] = (float)rand() / (float)RAND_MAX; } 
+for(int k = 0; k < atsize; k += 1)
+{ w2[k] = w1[k]; } 
+for(int k = 0; k < atsize; k += 1)
+{ w3[k] = w1[k]; } 
+for(int k = 0; k < atsize; k += 1)
+{ w4[k] = w1[k]; } 
+
+
+cout << "\n";
+cout << "The initial weights for classifier 1 are: ";
+for(int x = 0; x < atsize; x += 1)
+{ cout << w1[x] << " "; } cout << "\n";
+
+cout << "The initial weights for classifier 2 are: ";
+for(int x = 0; x < atsize; x += 1)
+{ cout << w2[x] << " "; } cout << "\n";
+
+cout << "The initial weights for classifier 3 are: ";
+for(int x = 0; x < atsize; x += 1)
+{ cout << w3[x] << " "; } cout << "\n";
+
+cout << "The initial weights for classifier 4 are: ";
+for(int x = 0; x < atsize; x += 1)
+{ cout << w4[x] << " "; } cout << "\n";
+
+
+perceptron(trset,c1,w1,size,0.2,1,atsize);
+perceptron(trset,c2,w2,size,0.2,2,atsize);
+perceptron(trset,c3,w3,size,0.2,3,atsize);
+perceptron(trset,c4,w4,size,0.2,4,atsize);
+
+
+test(w1,w2,w3,w4);
+
+}
